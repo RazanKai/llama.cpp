@@ -255,16 +255,17 @@ not a fully device-resident 1M.
 ## Appendix — benchmark commands
 
 ```bash
-# build
-make -C c inkling VK=1
+# build (CUDA primary; Vulkan fallback is `VK=1`)
+make -C c inkling CUDA=1 CUDA_HOME=/opt/cuda
 
 # import
 ./c/coli import /path/Inkling-2-Mini-UD-IQ3_XXS.gguf \
   --out /path/iq3xxs.colibri --no-mtp
 
-# run
-SNAP=/path/iq3xxs.colibri CTX_MAX=65536 COLI_VULKAN=1 \
-  ./c/inkling -p "$(cat bench/prompt-64k.txt)" -n 32
+# run (long prompts via -f; the local getline patch keeps one line whole)
+SNAP=/path/iq3xxs.colibri CTX_MAX=65536 COLI_CUDA=1 \
+  ./c/inkling -f bench/prompt-64k.txt -n 32
 ```
 
-`bench/run_bench.py` in this checkout runs 8K/32K/64K and writes `bench/results.json`.
+`bench/run_bench.py` runs 8K/32K/64K and writes `bench/results.json`;
+`bench/unsloth_64k.py` is the llama.cpp baseline.
